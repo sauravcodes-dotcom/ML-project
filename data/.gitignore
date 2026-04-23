@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.pyc
+
+# Virtual env
+venv/
+.env/
+
+# Mac
+.DS_Store
+
+# Large / generated
+dataset.csv
+model.pkl
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Logs
+*.log
