@@ -5,54 +5,134 @@ from data.juliet_loader import load_juliet_dataset
 NOISE_RATE = 0.15
 
 
-# -------- SIMPLE --------
-def simple_safe():
-    return random.choice([
-        "int a = 0; if(a == 1) return 1;",
-        "for(int i=0;i<n;i++){ sum += i; }",
-        "int *p = NULL; if(p != NULL) *p = 5;",
-    ])
+# ================= SAFE TEMPLATES =================
+SAFE_TEMPLATES = [
+    # basic
+    "int a = 0; if(a == 1) return 1;",
+    "for(int i=0;i<n;i++){ sum += i; }",
+    "int *p = NULL; if(p != NULL) *p = 5;",
+    "int x = 10; int y = x + 5;",
+    "if(x > 0) x--;",
+    "while(n > 0) { n--; }",
+
+    # arrays
+    "int arr[10]; for(int i=0;i<10;i++){ arr[i]=i; }",
+    "int arr[5]; arr[0] = 1;",
+    "for(int i=0;i<5;i++){ arr[i] = i*i; }",
+
+    # pointers
+    "int x = 5; int *p = &x; *p = 10;",
+    "int *p = malloc(sizeof(int)); if(p) { *p = 5; free(p); }",
+
+    # conditions
+    "if(a > b) a = b;",
+    "if(a < b) b = a;",
+    "if(x != 0) y = 10/x;",
+
+    # loops
+    "for(int i=0;i<10;i++){ printf(\"%d\", i); }",
+    "while(i < n) i++;",
+
+    # functions
+    "int add(int a,int b){ return a+b; }",
+    "int square(int x){ return x*x; }",
+
+    # memory safe
+    "char buf[10]; strncpy(buf, \"hi\", 9);",
+    "char *p = malloc(10); if(p) { strcpy(p, \"ok\"); free(p); }",
+
+    # misc
+    "int flag = 0; if(flag) return 1;",
+    "int count = 0; count += 1;",
+]
 
 
-def simple_buggy():
-    return random.choice([
-        "int a; if(a == 1) return 1;",
-        "int *p = NULL; *p = 5;",
-        "for(int i=0;i<=n;i++){ arr[i]=0; }",
-    ])
+# ================= BUGGY TEMPLATES =================
+BUGGY_TEMPLATES = [
+    # uninitialized
+    "int a; if(a == 1) return 1;",
+    "int x; printf(\"%d\", x);",
+
+    # null pointer
+    "int *p = NULL; *p = 5;",
+    "char *p = NULL; strcpy(p, \"hello\");",
+
+    # overflow
+    "int arr[5]; arr[10] = 1;",
+    "for(int i=0;i<=n;i++){ arr[i]=0; }",
+
+    # divide by zero
+    "int x = 10 / 0;",
+    "int y = a / (b - b);",
+
+    # double free
+    "int *p = malloc(sizeof(int)); free(p); free(p);",
+
+    # use after free
+    "int *p = malloc(sizeof(int)); free(p); *p = 10;",
+
+    # buffer overflow
+    "char buf[5]; strcpy(buf, \"this is long\");",
+
+    # pointer issues
+    "int *p; *p = 10;",
+
+    # off by one
+    "for(int i=0;i<=10;i++){ arr[i]=i; }",
+
+    # missing check
+    "int *p = malloc(sizeof(int)); *p = 5;",
+
+    # incorrect free
+    "int x; free(&x);",
+
+    # recursion overflow
+    "void f(){ f(); }",
+
+    # logic bug
+    "if(x = 5) printf(\"bug\");",
+
+    # format string
+    "printf(user_input);",
+
+    # misc
+    "int x; x = x + 1;",
+    "int arr[3]; arr[3] = 10;",
+]
 
 
-# -------- COMPLEX --------
+# ================= COMPLEX WRAPPERS =================
 def complex_safe():
-    return """
-    int sum_array(int *arr, int n) {
-        int sum = 0;
-        for(int i = 0; i < n; i++) {
-            if(arr[i] > 0) {
-                sum += arr[i];
-            }
-        }
-        return sum;
-    }
+    template = random.choice(SAFE_TEMPLATES)
+    return f"""
+    int func(int n) {{
+        {template}
+        return n;
+    }}
     """
 
 
 def complex_buggy():
-    return """
-    int compute(int x) {
-        int y = x * 2;
-        int z = y - x;
-        if(z > 10) {
-            x = z / (x - x);
-        }
+    template = random.choice(BUGGY_TEMPLATES)
+    return f"""
+    int func(int x) {{
+        {template}
         return x;
-    }
+    }}
     """
 
 
-# -------- NOISE --------
+def simple_safe():
+    return random.choice(SAFE_TEMPLATES)
+
+
+def simple_buggy():
+    return random.choice(BUGGY_TEMPLATES)
+
+
+# ================= VARIATIONS =================
 def add_variation(code):
-    vars = ["x", "temp", "count", "val", "num"]
+    vars = ["x", "temp", "count", "val", "num", "idx", "ptr"]
     for v in ["a", "i", "x"]:
         code = code.replace(v, random.choice(vars))
     return code
@@ -64,11 +144,11 @@ def random_spacing(code):
     return code
 
 
-# -------- MAIN --------
+# ================= MAIN =================
 def create_dataset(size=10000, juliet_path=None):
     data = []
 
-    # --- synthetic ---
+    # synthetic
     for _ in range(int(size * 0.6)):
         r = random.random()
 
@@ -95,13 +175,12 @@ def create_dataset(size=10000, juliet_path=None):
 
     df = pd.DataFrame(data, columns=["code", "label"])
 
-    # --- juliet ---
+    # juliet
     if juliet_path:
         print("Loading Juliet dataset...")
         juliet_df = load_juliet_dataset(juliet_path, max_samples=int(size * 0.4))
         df = pd.concat([df, juliet_df], ignore_index=True)
 
-    # shuffle
     df = df.sample(frac=1, random_state=42).reset_index(drop=True)
 
     df.to_csv("dataset.csv", index=False)

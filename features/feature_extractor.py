@@ -13,7 +13,7 @@ class FeatureExtractor:
             code.count("while"),
         ]
 
-    # 🔥 NEW: AST-like structural features
+    
     def ast_features(self, code):
         return [
             code.count("{"),

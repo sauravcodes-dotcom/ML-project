@@ -10,6 +10,8 @@ from sklearn.metrics import classification_report
 from features.feature_extractor import FeatureExtractor
 from features.embedding_extractor import CodeBERTEmbedder
 
+from sklearn.ensemble import RandomForestClassifier
+
 
 def run_experiment(X, y, name):
     print(f"\n===== {name} =====")
@@ -21,10 +23,27 @@ def run_experiment(X, y, name):
         stratify=y
     )
 
+    # models = {
+    #     "LogisticRegression": LogisticRegression(max_iter=1000),
+    #     "LinearSVM": LinearSVC()
+    #     "RandomForest": RandomForestClassifier(
+    #     n_estimators=100,
+    #     max_depth=None,
+    #     n_jobs=-1,
+    #     random_state=42
+    # )
+    # }
+
     models = {
-        "LogisticRegression": LogisticRegression(max_iter=1000),
-        "LinearSVM": LinearSVC()
-    }
+    "LogisticRegression": LogisticRegression(max_iter=1000),
+    "LinearSVM": LinearSVC(),
+    "RandomForest": RandomForestClassifier(
+        n_estimators=100,
+        max_depth=None,
+        n_jobs=-1,
+        random_state=42
+    )
+}
 
     results = {}
 
