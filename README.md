@@ -1,87 +1,306 @@
-🧠 Predicting Code Quality using Machine Learning
-📌 Overview
 
-This project predicts whether a given code snippet is buggy or safe using machine learning.
+# 🧠 Predicting Code Quality using Machine Learning
 
-We combine:
+## 📌 Overview
 
-synthetic code generation (100+ templates)
-real-world vulnerability data (Juliet Test Suite)
-multiple feature representations
-multiple ML models
+This project predicts whether a code snippet is **buggy** or **safe** using machine learning and semantic code embeddings.
 
-to build a robust code quality classifier.
+The system combines:
 
-⚙️ Problem Statement
+- Synthetic vulnerability generation
+- Real-world vulnerable code from the Juliet Test Suite
+- Traditional feature engineering
+- Transformer-based embeddings (CodeBERT)
+- Classical ML models and neural networks
 
-Manual code review is slow and error-prone.
-This project aims to automatically detect buggy code patterns using ML.
+The final system achieves approximately **86% test accuracy** on a large hybrid dataset of over **38,000 code samples**.
 
-📦 Dataset
+---
 
-We use a hybrid dataset (~10,000 samples):
+# ⚙️ Problem Statement
 
-🔹 Synthetic Data (60%)
-Generated using 100+ templates
-Covers multiple bug types:
-NULL pointer dereference
-buffer overflow
-divide-by-zero
-uninitialized variables
-Includes:
-variable renaming
-formatting variation
-label noise
-🔹 Juliet Dataset (40%)
-Real-world vulnerability dataset (C language)
-Labeled:
-good → safe (0)
-bad → buggy (1)
-🤔 Why Juliet (and not others)?
-Dataset	Reason not used
-Defects4J	Requires mapping commits → functions (complex preprocessing)
-CodeSearchNet	No bug labels (not suitable for classification)
+Manual code review is:
 
-👉 Juliet provides clean, labeled vulnerability data, making it ideal for supervised learning.
+- Time-consuming
+- Expensive
+- Error-prone
 
-🧩 Feature Engineering
+The goal of this project is to automatically identify vulnerable or buggy code patterns using machine learning techniques.
 
-We extract multiple feature types:
+---
 
-1️⃣ TF-IDF (Syntax)
-Token-level representation
-Captures patterns like:
-if, return, *, NULL
-2️⃣ Code Metrics
-Simple structural indicators:
-Lines of code (LOC)
-number of loops
-number of conditions
-3️⃣ Structural Patterns (Explored)
-Pointer usage
-brace counts
-basic structure signals
-4️⃣ CodeBERT Embeddings ⭐ (Most Important)
-768-dimensional semantic vectors
+# 📦 Dataset
+
+## Hybrid Dataset (~38,000 samples)
+
+The dataset combines:
+
+| Source | Contribution |
+|---|---|
+| Synthetic Code Generation | ~60% |
+| Juliet Vulnerability Dataset | ~40% |
+
+---
+
+## 🔹 Synthetic Data Generation
+
+Custom templates were created to simulate vulnerable and safe C/C++ code snippets.
+
+### Vulnerabilities Covered
+
+- Buffer overflow
+- NULL pointer dereference
+- Divide-by-zero
+- Use-after-free
+- Double free
+- Uninitialized variables
+- Array index errors
+- Unsafe string operations
+
+### Data Augmentation Techniques
+
+To improve generalization, multiple variations were introduced:
+
+- Variable renaming
+- Formatting noise
+- Structural mutations
+- Loop modifications
+- Conditional mutations
+- Controlled label noise
+
+---
+
+## 🔹 Juliet Test Suite
+
+The project also uses the **Juliet Test Suite**, a widely used vulnerability benchmark dataset for C/C++ programs.
+
+### Labels
+
+| Label | Meaning |
+|---|---|
+| `0` | Safe Code |
+| `1` | Vulnerable Code |
+
+---
+
+# 🤔 Why Juliet?
+
+| Dataset | Reason Not Used |
+|---|---|
+| Defects4J | Complex preprocessing and commit-function mapping |
+| CodeSearchNet | No vulnerability labels |
+| Generic GitHub Data | Noisy and inconsistent labels |
+
+Juliet provides:
+
+- Clean labels
+- Real vulnerability patterns
+- Standardized structure
+- Large vulnerability coverage
+
+---
+
+# 🧩 Feature Engineering
+
+Multiple feature representations were explored.
+
+---
+
+## 1️⃣ TF-IDF Features
+
+Captures token-level syntactic information.
+
+### Examples
+
+- `if`
+- `return`
+- `NULL`
+- `malloc`
+- `strcpy`
+
+### Purpose
+
+Detects local vulnerability-related token patterns.
+
+---
+
+## 2️⃣ Code Metrics
+
+Simple structural indicators extracted from code.
+
+### Examples
+
+- Lines of code
+- Number of loops
+- Number of conditions
+- Pointer count
+- Function count
+
+### Observation
+
+Metrics alone were not strong predictors.
+
+---
+
+## 3️⃣ Structural Features
+
+Additional structural signals explored:
+
+- Brace counts
+- Pointer operations
+- Loop structure
+- Conditional density
+
+---
+
+## 4️⃣ CodeBERT Embeddings ⭐
+
+The most important feature representation.
+
+### Details
+
+- Pretrained transformer model
+- 768-dimensional embeddings
+- Semantic understanding of code
+
+### Advantages
+
 Captures:
-meaning
-context
-code behavior
-🤖 Models Used
-Logistic Regression → strong linear baseline
-Linear SVM → sensitive to high-dimensional data
-Random Forest ⭐ → best performing (non-linear model)
-📊 Results (Final)
-Feature Set	Logistic Regression	SVM	Random Forest
-TF-IDF	~0.75	~0.75	~0.83
-Combined	~0.76	~0.54	~0.84
-Full (with embeddings)	~0.88	~0.63	~0.89 (BEST)
-💡 Key Insights
-CodeBERT embeddings significantly improve performance (~+10%)
-Random Forest performs best due to non-linear feature interactions
-Metrics alone are weak (~0.58 accuracy)
-Performance saturates around ~89% → more data alone won’t help
-🏗️ Project Structure
+
+- Code meaning
+- Context
+- Behavioral similarity
+- Semantic vulnerability patterns
+
+---
+
+# 🤖 Models Explored
+
+## Classical ML Models
+
+| Model | Purpose |
+|---|---|
+| Logistic Regression | Strong linear baseline |
+| Linear SVM | High-dimensional classifier |
+| Random Forest | Non-linear ensemble model |
+
+---
+
+## Deep Learning Model
+
+### Multi-Layer Perceptron (MLP)
+
+Custom neural network trained on:
+
+- PCA-reduced CodeBERT embeddings
+- TF-IDF features
+- Code metrics
+
+### Architecture Features
+
+- Batch normalization
+- Dropout regularization
+- Learning rate scheduling
+- PCA dimensionality reduction
+
+---
+
+# 📊 Experimental Results
+
+## Classical Models
+
+| Feature Set | Logistic Regression | Linear SVM | Random Forest |
+|---|---|---|---|
+| TF-IDF | ~0.71 | ~0.71 | ~0.71 |
+| Metrics | ~0.58 | ~0.58 | ~0.64 |
+| Combined | ~0.71 | ~0.71 | ~0.69 |
+| Full (with embeddings) | ~0.76 | ~0.76 | ~0.62 |
+
+---
+
+## Neural Network Results ⭐
+
+| Model | Accuracy |
+|---|---|
+| MLP + Embeddings + TF-IDF + Metrics | **~0.86** |
+
+---
+
+# 📈 Key Insights
+
+## ✅ Semantic embeddings significantly improve performance
+
+CodeBERT embeddings improved accuracy substantially compared to traditional features alone.
+
+---
+
+## ✅ Metrics alone are weak predictors
+
+Simple structural metrics achieved only ~58–64% accuracy.
+
+---
+
+## ✅ Hybrid feature engineering works best
+
+Combining:
+
+- semantic embeddings
+- TF-IDF
+- structural features
+
+produced the strongest results.
+
+---
+
+## ✅ Larger datasets reduced overfitting
+
+Earlier experiments on small datasets achieved unrealistically high test accuracy (~100%), indicating overfitting.
+
+Increasing dataset size improved:
+
+- generalization
+- robustness
+- reliability of evaluation
+
+---
+
+## ✅ Neural networks outperformed classical models
+
+The final MLP achieved approximately:
+
+```math
+86\% \text{ accuracy}
+```
+
+on the large-scale hybrid dataset.
+
+---
+
+# 🔍 Explainability
+
+The project also includes an explainability pipeline.
+
+The explainability module:
+
+- predicts whether code is vulnerable
+- outputs confidence scores
+- identifies influential features/tokens
+
+### Example Important Features
+
+- `malloc`
+- `strcpy`
+- `NULL`
+- `return`
+- `char`
+
+This improves interpretability of model decisions.
+
+---
+
+# 🏗️ Project Structure
+
+```text
 code_quality_ml/
 │
 ├── data/
@@ -91,54 +310,219 @@ code_quality_ml/
 ├── features/
 │   ├── feature_extractor.py
 │   ├── embedding_extractor.py
+│   ├── save_embeddings.py
 │
 ├── models/
 │   ├── train.py
+│   ├── train_neural.py
+│   ├── train_xgboost.py
+│   ├── explain.py
+│   ├── neural_net.py
+│   ├── plot_results.py
 │
-├── dataset.csv (generated, NOT tracked)
-├── model.pkl (generated, NOT tracked)
-🚀 Setup Instructions
-1️⃣ Clone the repo
+├── predict.py
+├── main.py
+├── requirements.txt
+├── README.md
+│
+├── dataset.csv                (generated locally)
+├── embeddings.npy             (generated locally)
+├── model.pkl                  (generated locally)
+├── best_neural_model.pth      (generated locally)
+```
+
+---
+
+# 🚀 Setup Instructions
+
+## 1️⃣ Clone Repository
+
+```bash
 git clone https://github.com/sauravcodes-dotcom/ML-project.git
+
 cd ML-project
-2️⃣ Create virtual environment (recommended)
+```
+
+---
+
+## 2️⃣ Create Virtual Environment
+
+### Mac/Linux
+
+```bash
 python -m venv venv
-source venv/bin/activate   # Mac/Linux
-venv\Scripts\activate      # Windows
-3️⃣ Install dependencies
+
+source venv/bin/activate
+```
+
+### Windows
+
+```bash
+python -m venv venv
+
+venv\Scripts\activate
+```
+
+---
+
+## 3️⃣ Install Dependencies
+
+```bash
 pip install -r requirements.txt
-📊 Generate Dataset
+```
+
+---
+
+# 📊 Generate Dataset
+
+```bash
 python -m data.generate_dataset
+```
 
-👉 This will:
+This step:
 
-generate synthetic data
-load Juliet dataset
-create dataset.csv
-🧠 Train Models
+- Generates synthetic vulnerable code
+- Loads Juliet dataset
+- Creates hybrid dataset
+
+Output:
+
+```text
+dataset.csv
+```
+
+---
+
+# 🧠 Generate CodeBERT Embeddings
+
+```bash
+python -m features.save_embeddings
+```
+
+Outputs:
+
+```text
+embeddings.npy
+labels.npy
+```
+
+---
+
+# 🤖 Train Classical Models
+
+```bash
 python -m models.train
+```
 
-👉 This will:
+This step:
 
-extract features
-train models
-print evaluation metrics
-save best model (model.pkl)
-🔍 Make Predictions
-python predict.py
+- Extracts features
+- Trains ML models
+- Evaluates performance
+- Saves explainable model
 
-(or your custom inference script)
+Output:
 
-⚠️ Important Notes
-dataset.csv and model.pkl are not included in repo
-They are generated locally
-Juliet dataset must be downloaded separately:
+```text
+model.pkl
+```
+
+---
+
+# 🧠 Train Neural Network
+
+```bash
+python -m models.train_neural
+```
+
+Outputs:
+
+```text
+best_neural_model.pth
+```
+
+---
+
+# 📈 Generate Evaluation Plots
+
+```bash
+python -m models.plot_results
+```
+
+Generates:
+
+- Accuracy comparison plots
+- Feature engineering plots
+- Learning curves
+- Dataset scaling analysis
+
+---
+
+# 🔍 Run Explainability
+
+```bash
+python -m models.explain
+```
+
+Example output:
+
+```text
+Prediction: Vulnerable Code
+Confidence: 0.92
+
+Important Features:
+malloc
+strcpy
+NULL
+char
+```
+
+---
+
+# ⚠️ Important Notes
+
+The following files are generated locally and are NOT included in the repository:
+
+- `dataset.csv`
+- `embeddings.npy`
+- `labels.npy`
+- `model.pkl`
+- `*.pth`
+
+---
+
+# 📥 Juliet Dataset Download
+
+Download Juliet dataset from:
+
 https://samate.nist.gov/SARD/test-suites/112
-🔮 Future Work
-AST-based feature extraction
-Multi-language support (Python, Java)
-Fine-tuning CodeBERT (deep learning)
-CI/CD integration for automated code review
-Larger and more diverse datasets
-🧠 Key Takeaway
-Combining semantic embeddings with traditional features enables accurate bug detection (~89% accuracy), with Random Forest performing best due to its ability to model non-linear interactions.
+
+---
+
+# 🔮 Future Improvements
+
+- AST-based feature extraction
+- Graph Neural Networks (GNNs)
+- Fine-tuning CodeBERT
+- Multi-language support
+- CI/CD integration
+- Real-world GitHub vulnerability mining
+- Transformer-based end-to-end classifiers
+
+---
+
+# 🧠 Final Takeaway
+
+This project demonstrates that combining:
+
+- semantic embeddings
+- traditional feature engineering
+- deep learning
+
+can effectively detect vulnerable code patterns at scale.
+
+The final hybrid neural system achieved approximately:
+
+# ⭐ ~86% Test Accuracy
+
+while maintaining improved generalization on a large and diverse vulnerability dataset.
