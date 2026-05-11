@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+*.npy
+*.pth
+*.pkl
+*.png
+dataset.csv
+.DS_Store

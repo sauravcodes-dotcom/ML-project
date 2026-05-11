@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.pyc
+
+# Virtual environments
+venv/
+.env/
+
+# macOS
+.DS_Store
+
+# ML artifacts
+*.npy
+*.pth
+*.pkl
+
+# Datasets
+dataset.csv
+
+# Generated plots
+*.png
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Logs
+*.log
